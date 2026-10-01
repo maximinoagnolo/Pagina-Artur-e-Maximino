@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artur Dell'Agnolo &amp; Maximino Soluções</title>
+<meta name="description" content="Escolha entre o espaço pessoal de Artur Dell'Agnolo e o site institucional da Maximino Soluções.">
+<style>
+  :root{
+    --artur-bg:#0e0d10;
+    --artur-fg:#f5f1ea;
+    --maximino-bg:#3e2352;
+    --maximino-fg:#f4ede1;
+    --gold:#c9a227;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    overflow:hidden;
+  }
+  .split-wrap{
+    display:flex;
+    flex-direction:row;
+    min-height:100vh;
+    width:100%;
+  }
+  @media (max-width:760px){
+    .split-wrap{flex-direction:column;}
+  }
+  .panel{
+    position:relative;
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    text-decoration:none;
+    overflow:hidden;
+    transition:flex-grow .45s ease;
+  }
+  @media (max-width:760px){
+    .panel{min-height:50vh;}
+  }
+  .split-wrap:has(.panel:hover) .panel:not(:hover){
+    flex-grow:0.82;
+  }
+  .split-wrap:has(.panel:hover) .panel:hover{
+    flex-grow:1.18;
+  }
+  .panel-content{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    padding:2rem;
+  }
+  .panel--artur{background:radial-gradient(circle at 50% 20%, #1c1a1f 0%, var(--artur-bg) 70%);color:var(--artur-fg);}
+  .panel--maximino{background:radial-gradient(circle at 50% 20%, #4a2c63 0%, var(--maximino-bg) 70%);color:var(--maximino-fg);}
+
+  .avatar{
+    width:104px;height:104px;border-radius:50%;
+    object-fit:cover;margin:0 auto 1.5rem;
+    border:2px solid var(--gold);
+  }
+  .symbol{
+    width:88px;height:88px;object-fit:contain;margin:0 auto 1.25rem;
+    filter:drop-shadow(0 0 18px rgba(201,162,39,.35));
+  }
+  .eyebrow{
+    font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:.9rem;font-weight:600;
+  }
+  h1{
+    font-size:clamp(1.6rem,3.4vw,2.6rem);
+    font-weight:700;line-height:1.15;margin-bottom:.75rem;
+  }
+  .panel p{
+    font-size:.98rem;opacity:.78;max-width:340px;margin:0 auto;line-height:1.55;
+  }
+  .enter{
+    display:inline-block;margin-top:1.75rem;font-size:.8rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--gold);
+    border-bottom:1px solid var(--gold);padding-bottom:3px;
+  }
+  .divider{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    z-index:3;width:56px;height:56px;border-radius:50%;
+    background:#000;border:1px solid rgba(255,255,255,.15);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.68rem;letter-spacing:.05em;color:#fff;
+    pointer-events:none;
+  }
+  @media (max-width:760px){ .divider{display:none;} }
+</style>
+</head>
+<body>
+  <div class="split-wrap">
+    <a class="panel panel--artur" href="artur/index.html">
+      <div class="panel-content">
+        <img class="avatar" src="assets/artur-avatar.png" alt="Artur Dell'Agnolo">
+        <div class="eyebrow">Consultor Empresarial</div>
+        <h1>Artur Dell'Agnolo</h1>
+        <p>Diagnósticos, cases e bastidor de consultoria empresarial.</p>
+        <span class="enter">Entrar no site →</span>
+      </div>
+    </a>
+    <a class="panel panel--maximino" href="maximino/index.html">
+      <div class="panel-content">
+        <img class="symbol" src="assets/maximino-symbol.png" alt="Maximino Soluções">
+        <div class="eyebrow">Consultoria Empresarial · Brusque/SC</div>
+        <h1>Maximino Soluções</h1>
+        <p>Diagnóstico, consultoria e mentoria empresarial para empresas que querem parar de perder dinheiro sem saber onde.</p>
+        <span class="enter">Entrar no site →</span>
+      </div>
+    </a>
+  </div>
+  <div class="divider">OU</div>
+</body>
+</html>
