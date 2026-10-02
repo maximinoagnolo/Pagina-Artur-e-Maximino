@@ -15,15 +15,38 @@
       <img src="../../assets/artur-avatar.png" alt="Artur Dell'Agnolo">
       Artur Dell'Agnolo
     </a>
-    <ul class="navlinks">
+    <ul class="navlinks" id="navLinks">
       <li><a href="../index.html#sobre">Sobre</a></li>
       <li><a href="../index.html#trabalho">Como trabalho</a></li>
       <li><a href="index.html" class="active">Produtos</a></li>
       <li><a href="../index.html#contato">Contato</a></li>
+      <li class="mobile-only"><a href="../../index.html">↔ Trocar de site</a></li>
     </ul>
+    <button class="navtoggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">☰</button>
     <a class="back-switch" href="../../index.html">↔ trocar de site</a>
   </nav>
 </header>
+
+<script>
+(function(){
+  var btn = document.getElementById('navToggle');
+  var nav = document.getElementById('navLinks');
+  if(!btn || !nav) return;
+  function closeMenu(){
+    nav.classList.remove('open');
+    btn.setAttribute('aria-expanded','false');
+    btn.textContent = '☰';
+  }
+  btn.addEventListener('click', function(){
+    var open = nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = open ? '✕' : '☰';
+  });
+  nav.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeMenu);
+  });
+})();
+</script>
 
 <section class="hero" id="top">
   <div class="wrap">

@@ -27,14 +27,30 @@ header{
   background:rgba(244,237,225,.9);backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line);
 }
-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1080px;margin:0 auto;}
+nav{position:relative;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1080px;margin:0 auto;}
 .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.02em;text-decoration:none;font-family:'Playfair Display',serif;color:var(--purple);}
 .brand img{width:32px;height:32px;object-fit:contain;}
 .navlinks{display:flex;gap:28px;font-size:.9rem;list-style:none;}
 .navlinks a{text-decoration:none;color:var(--muted);transition:color .2s;}
 .navlinks a:hover{color:var(--purple);}
+.mobile-only{display:none;}
 .back-switch{font-size:.78rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:6px 12px;border-radius:20px;transition:.2s;}
 .back-switch:hover{border-color:var(--gold);color:var(--purple);}
+.navtoggle{display:none;background:none;border:0;color:var(--purple);font-size:1.6rem;line-height:1;cursor:pointer;padding:8px 4px;}
+@media (max-width:760px){
+  .navtoggle{display:block;}
+  .back-switch{display:none;}
+  .navlinks{
+    display:none;position:absolute;top:100%;left:0;right:0;
+    flex-direction:column;gap:0;
+    background:var(--cream);border-bottom:1px solid var(--line);
+    padding:4px 24px 14px;box-shadow:0 16px 24px -16px rgba(44,25,57,.3);
+  }
+  .navlinks.open{display:flex;}
+  .navlinks a{display:block;padding:14px 2px;font-size:1.02rem;border-bottom:1px solid var(--line);}
+  .navlinks li:last-child a{border-bottom:none;}
+  .mobile-only{display:block;}
+}
 
 .hero{
   padding:96px 0 76px;text-align:center;
@@ -105,3 +121,11 @@ section{padding:84px 0;border-top:1px solid var(--line);}
 footer{border-top:1px solid var(--line);padding:44px 0;text-align:center;color:var(--muted);font-size:.85rem;}
 footer a{color:var(--purple);text-decoration:none;font-weight:600;}
 footer .foot-links{display:flex;gap:18px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+
+@media (max-width:480px){
+  .hero{padding:72px 0 56px;}
+  section{padding:64px 0;}
+  .dark-cta{padding:40px 22px;}
+  .crossbrand{padding:28px 20px;}
+  .case-card{padding:26px 20px;}
+}
