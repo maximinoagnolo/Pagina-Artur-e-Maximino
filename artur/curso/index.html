@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de Espera do Curso — Artur Dell'Agnolo</title>
+<meta name="description" content="O curso ainda não existe no formato final — e suas respostas aqui decidem o que entra nele primeiro. Leva 2 minutos.">
+<link rel="stylesheet" href="../style.css">
+
+<!--
+  ======================================================================
+  CONFIGURAÇÃO — endpoint de envio do formulário
+  ======================================================================
+  Troque ENDPOINT pela URL do seu formulário (ex: Formspree, Web3Forms,
+  Basin). Com Formspree: crie uma conta grátis em formspree.io, crie um
+  formulário, e cole aqui a URL no formato "https://formspree.io/f/XXXX".
+  Enquanto ENDPOINT for null, o botão de enviar mostra um aviso com
+  alternativa de contato direto, pra nunca perder um lead.
+  ======================================================================
+-->
+<script>
+  window.ARTUR_CURSO = {
+    ENDPOINT: null, // ex: "https://formspree.io/f/xxxxxxx"
+    WHATSAPP_NUMBER: null // opcional: "55SEUNUMEROAQUI" — se vazio, fallback vai pro Instagram
+  };
+</script>
+
+<style>
+  .form-page{padding:48px 0 80px;}
+  .form-head{max-width:640px;margin:0 auto 36px;text-align:center;}
+  .form-head h1{font-size:clamp(1.7rem,3.6vw,2.3rem);margin-bottom:14px;}
+  .form-head p{color:var(--muted);font-size:1.02rem;}
+  .form-meta{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin-top:18px;font-size:.82rem;color:var(--gold);font-weight:600;}
+  .form-meta span{display:flex;align-items:center;gap:6px;}
+
+  .form-shell{
+    max-width:640px;margin:0 auto;background:var(--bg-alt);border:1px solid var(--line);
+    border-radius:18px;padding:36px 32px;
+  }
+  @media (max-width:600px){ .form-shell{padding:26px 20px;border-radius:14px;} }
+
+  .progress-wrap{margin-bottom:30px;}
+  .progress-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:8px;font-weight:600;}
+  .progress-label b{color:var(--gold);}
+  .progress-track{height:6px;background:var(--line);border-radius:10px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),#8a6d1c);border-radius:10px;transition:width .35s ease;width:33.33%;}
+
+  .step{display:none;animation:stepIn .35s ease;}
+  .step.active{display:block;}
+  @keyframes stepIn{from{opacity:0;transform:translateX(8px);}to{opacity:1;transform:translateX(0);}}
+  .step h2{font-size:1.2rem;color:var(--fg);margin-bottom:6px;}
+  .step .step-sub{color:var(--muted);font-size:.9rem;margin-bottom:22px;}
+
+  .field{margin-bottom:20px;}
+  .field label{display:block;font-size:.88rem;font-weight:600;color:var(--fg);margin-bottom:8px;}
+  .field .hint{font-weight:400;color:var(--muted);font-size:.8rem;}
+  .field input[type=text],
+  .field input[type=email],
+  .field select,
+  .field textarea{
+    width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:8px;
+    font-family:'Inter',sans-serif;font-size:.96rem;color:var(--fg);background:#1c191e;
+    transition:border-color .15s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--gold);}
+  .field textarea{resize:vertical;min-height:90px;}
+  .field input::placeholder, .field textarea::placeholder{color:#716b65;}
+
+  .choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
+  .choice-grid.narrow{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+  .choice{
+    position:relative;display:flex;align-items:center;gap:10px;
+    border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;background:#1c191e;
+    font-size:.9rem;color:var(--fg);cursor:pointer;transition:border-color .15s ease, background .15s ease;
+  }
+  .choice input{position:absolute;opacity:0;width:1px;height:1px;}
+  .choice .mark{
+    width:17px;height:17px;flex:none;border:1.5px solid var(--muted);border-radius:5px;
+    display:flex;align-items:center;justify-content:center;transition:.15s ease;
+  }
+  .choice input[type=radio] + .mark{border-radius:50%;}
+  .choice .mark::after{content:"";width:8px;height:8px;border-radius:2px;background:var(--gold);opacity:0;transform:scale(.5);transition:.15s ease;}
+  .choice input[type=radio] + .mark::after{border-radius:50%;}
+  .choice.checked{border-color:var(--gold);background:rgba(201,162,39,.1);}
+  .choice.checked .mark{border-color:var(--gold);}
+  .choice.checked .mark::after{opacity:1;transform:scale(1);}
+  .choice.is-disabled{opacity:.55;cursor:default;}
+
+  .conditional{margin-top:14px;display:none;}
+  .conditional.show{display:block;}
+
+  .group-error{color:#e08a8a;font-size:.82rem;margin-top:8px;display:none;}
+  .group-error.show{display:block;}
+
+  .form-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px;}
+  .form-nav .spacer{flex:1;}
+  .btn-form{
+    display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:8px;border:none;
+    font-family:'Inter',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;transition:transform .15s ease;
+  }
+  .btn-form:hover{transform:translateY(-1px);}
+  .btn-next{background:var(--gold);color:#191410;margin-left:auto;}
+  .btn-back{background:transparent;color:var(--muted);border:1px solid var(--line) !important;}
+  .btn-submit{background:var(--gold);color:#191410;margin-left:auto;}
+
+  .success-panel, .fallback-panel{display:none;text-align:center;padding:20px 0;}
+  .success-panel.show, .fallback-panel.show{display:block;}
+  .success-panel .big-check{width:60px;height:60px;border-radius:50%;background:rgba(201,162,39,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:var(--gold);font-size:1.4rem;}
+  .success-panel h2{color:var(--fg);margin-bottom:10px;}
+  .success-panel p{color:var(--muted);}
+  .fallback-panel p{color:var(--muted);margin-bottom:18px;}
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a class="brand" href="../index.html#top">
+      <img src="../../assets/artur-avatar.png" alt="Artur Dell'Agnolo">
+      Artur Dell'Agnolo
+    </a>
+    <ul class="navlinks" id="navLinks">
+      <li><a href="../index.html#sobre">Sobre</a></li>
+      <li><a href="../index.html#trabalho">Como trabalho</a></li>
+      <li><a href="../produtos/index.html">Produtos</a></li>
+      <li><a href="../index.html#contato">Contato</a></li>
+      <li class="mobile-only"><a href="../../index.html">↔ Trocar de site</a></li>
+    </ul>
+    <button class="navtoggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <a class="back-switch" href="../../index.html">↔ trocar de site</a>
+  </nav>
+</header>
+
+<section class="form-page">
+  <div class="wrap">
+
+    <div class="form-head">
+      <div class="eyebrow">Curso em construção</div>
+      <h1>O curso ainda não existe no formato final — você ajuda a decidir o que entra nele</h1>
+      <p>Leva uns 2 minutos. Em vez de lançar algo genérico, prefiro perguntar direto pra quem vai pagar: o que dói, o que já tentou, e quanto faz sentido investir.</p>
+      <div class="form-meta">
+        <span>⏱ ~2 minutos</span>
+        <span>📩 Aviso em primeira mão no lançamento</span>
+      </div>
+    </div>
+
+    <div class="form-shell">
+
+      <form id="cursoForm">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="hidden" name="_subject" value="Novo lead — Lista de espera curso Artur">
+
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Etapa <b id="stepNow">1</b> de 3</span><span id="stepName">Quem é você</span></div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+
+        <!-- ETAPA 1 -->
+        <div class="step active" data-step="1">
+          <h2>Quem é você</h2>
+          <p class="step-sub">Rapidinho, só pra eu saber com quem estou falando.</p>
+
+          <div class="field">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="instagram">Instagram</label>
+            <input type="text" id="instagram" name="instagram" placeholder="@seuinstagram" required>
+          </div>
+          <div class="field">
+            <label>Você tem empresa própria ou trabalha para uma?</label>
+            <div class="choice-grid narrow" data-radio-group="situacao">
+              <label class="choice"><input type="radio" name="situacao" value="Dono/sócio" required><span class="mark"></span>Dono/sócio</label>
+              <label class="choice"><input type="radio" name="situacao" value="Gestor/funcionário"><span class="mark"></span>Gestor/funcionário</label>
+              <label class="choice"><input type="radio" name="situacao" value="Consultor/contador"><span class="mark"></span>Consultor/contador</label>
+              <label class="choice"><input type="radio" name="situacao" value="Estudante/curioso"><span class="mark"></span>Estudante/curioso</label>
+              <label class="choice"><input type="radio" name="situacao" value="Outro"><span class="mark"></span>Outro</label>
+            </div>
+            <div class="conditional" id="situacaoOutroWrap">
+              <input type="text" name="situacao_outro" placeholder="Qual?">
+            </div>
+          </div>
+        </div>
+
+        <!-- ETAPA 2 -->
+        <div class="step" data-step="2">
+          <h2>Seu contexto</h2>
+          <p class="step-sub">Isso define o nível e os exemplos que fazem sentido pra você.</p>
+
+          <div class="field conditional" id="empresaContextoWrap">
+            <label for="empresa_contexto">Qual o segmento e o tamanho aproximado da empresa? <span class="hint">(nº de funcionários)</span></label>
+            <input type="text" id="empresa_contexto" name="empresa_contexto" placeholder="Ex: confecção, 15 funcionários">
+          </div>
+
+          <div class="field">
+            <label>Qual desses temas te interessa mais no curso? <span class="hint">(pode marcar mais de um)</span></label>
+            <div class="choice-grid" data-checkbox-group="temas">
+              <label class="choice"><input type="checkbox" name="temas" value="Controle de estoque"><span class="mark"></span>Controle de estoque</label>
+              <label class="choice"><input type="checkbox" name="temas" value="Formação de preço/margem"><span class="mark"></span>Formação de preço/margem</label>
+              <label class="choice"><input type="checkbox" name="temas" value="Ponto de equilíbrio"><span class="mark"></span>Ponto de equilíbrio</label>
+              <label class="choice"><input type="checkbox" name="temas" value="Gestão de custos"><span class="mark"></span>Gestão de custos</label>
+              <label class="choice"><input type="checkbox" name="temas" value="Fluxo de caixa"><span class="mark"></span>Fluxo de caixa</label>
+              <label class="choice"><input type="checkbox" name="temas" value="Tudo isso" id="temasTodos"><span class="mark"></span>Tudo isso</label>
+            </div>
+            <div class="group-error" id="temasError">Marque pelo menos uma opção.</div>
+          </div>
+
+          <div class="field">
+            <label>Hoje, como você resolve esses pontos na sua empresa?</label>
+            <div class="choice-grid narrow" data-radio-group="resolve_hoje">
+              <label class="choice"><input type="radio" name="resolve_hoje" value="Acho na planilha/no feeling" required><span class="mark"></span>Acho na planilha/no feeling</label>
+              <label class="choice"><input type="radio" name="resolve_hoje" value="Tenho contador mas não me ajuda nisso"><span class="mark"></span>Tenho contador, mas não me ajuda nisso</label>
+              <label class="choice"><input type="radio" name="resolve_hoje" value="Já tentei consultoria"><span class="mark"></span>Já tentei consultoria</label>
+              <label class="choice"><input type="radio" name="resolve_hoje" value="Não resolvo — é aí que está o problema"><span class="mark"></span>Não resolvo — é aí que está o problema</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ETAPA 3 -->
+        <div class="step" data-step="3">
+          <h2>Pra eu acertar o produto</h2>
+          <p class="step-sub">Últimas três — essas aqui decidem preço e formato do curso.</p>
+
+          <div class="field">
+            <label for="duvida">Qual é a sua maior dúvida ou dor em relação a número/gestão hoje?</label>
+            <textarea id="duvida" name="duvida" required></textarea>
+          </div>
+
+          <div class="field">
+            <label>Quanto você investiria num curso que resolvesse isso?</label>
+            <div class="choice-grid narrow" data-radio-group="investimento">
+              <label class="choice"><input type="radio" name="investimento" value="Até R$100" required><span class="mark"></span>Até R$100</label>
+              <label class="choice"><input type="radio" name="investimento" value="R$100-300"><span class="mark"></span>R$100–300</label>
+              <label class="choice"><input type="radio" name="investimento" value="R$300-600"><span class="mark"></span>R$300–600</label>
+              <label class="choice"><input type="radio" name="investimento" value="Mais de R$600"><span class="mark"></span>Mais de R$600</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Prefere consumir o conteúdo como:</label>
+            <div class="choice-grid narrow" data-radio-group="formato">
+              <label class="choice"><input type="radio" name="formato" value="Curso gravado, no meu ritmo" required><span class="mark"></span>Curso gravado, no meu ritmo</label>
+              <label class="choice"><input type="radio" name="formato" value="Mentoria em grupo com encontros ao vivo"><span class="mark"></span>Mentoria em grupo, ao vivo</label>
+              <label class="choice"><input type="radio" name="formato" value="Mix dos dois"><span class="mark"></span>Mix dos dois</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-nav">
+          <button type="button" class="btn-form btn-back" id="btnBack" style="display:none;">← Voltar</button>
+          <div class="spacer"></div>
+          <button type="button" class="btn-form btn-next" id="btnNext">Avançar →</button>
+          <button type="submit" class="btn-form btn-submit" id="btnSubmit" style="display:none;">Quero entrar na lista</button>
+        </div>
+      </form>
+
+      <div class="success-panel" id="successPanel">
+        <div class="big-check">✓</div>
+        <h2>Você está na lista</h2>
+        <p>Assim que o curso estiver pronto, você é um dos primeiros a saber — e suas respostas já estão me ajudando a desenhar o conteúdo certo. Obrigado por tirar 2 minutos pra isso.</p>
+      </div>
+
+      <div class="fallback-panel" id="fallbackPanel">
+        <p>O envio automático ainda não está configurado — mas sua resposta não vai se perder. Me chama direto:</p>
+        <a class="btn btn-gold" id="fallbackLink" href="#" target="_blank" rel="noopener">Enviar respostas no Instagram</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>Artur Dell'Agnolo · Consultor Empresarial · Fundador da Maximino Soluções</div>
+    <div class="foot-links">
+      <a href="https://instagram.com/artur.agnolo" target="_blank" rel="noopener">Instagram</a>
+      <a href="../index.html">Site do Artur</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // menu mobile
+  var navBtn = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  if(navBtn && navLinks){
+    navBtn.addEventListener('click', function(){
+      var open = navLinks.classList.toggle('open');
+      navBtn.setAttribute('aria-expanded', open ? 'true':'false');
+      navBtn.textContent = open ? '✕' : '☰';
+    });
+  }
+
+  // choice cards (radio/checkbox visual state)
+  document.querySelectorAll('.choice input').forEach(function(input){
+    function sync(){
+      if(input.type === 'radio'){
+        document.getElementsByName(input.name).forEach(function(sibling){
+          sibling.closest('.choice').classList.toggle('checked', sibling.checked);
+        });
+      } else {
+        input.closest('.choice').classList.toggle('checked', input.checked);
+      }
+    }
+    input.addEventListener('change', sync);
+  });
+
+  // condicional: situação = Outro
+  var situacaoOutroWrap = document.getElementById('situacaoOutroWrap');
+  var empresaContextoWrap = document.getElementById('empresaContextoWrap');
+  document.getElementsByName('situacao').forEach(function(r){
+    r.addEventListener('change', function(){
+      var showOutro = r.value === 'Outro' && r.checked;
+      situacaoOutroWrap.classList.toggle('show', showOutro);
+      situacaoOutroWrap.querySelector('input').required = showOutro;
+      if(r.checked){
+        empresaContextoWrap.classList.toggle('show', r.value !== 'Estudante/curioso');
+      }
+    });
+  });
+
+  // "Tudo isso" seleciona e trava os outros temas
+  var temasTodos = document.getElementById('temasTodos');
+  var temasOutros = Array.prototype.slice.call(document.querySelectorAll('input[name="temas"]')).filter(function(i){ return i !== temasTodos; });
+  temasTodos.addEventListener('change', function(){
+    temasOutros.forEach(function(cb){
+      cb.disabled = temasTodos.checked;
+      cb.checked = temasTodos.checked;
+      var choice = cb.closest('.choice');
+      choice.classList.toggle('checked', temasTodos.checked);
+      choice.classList.toggle('is-disabled', temasTodos.checked);
+    });
+  });
+
+  // ---------- motor de etapas ----------
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var total = steps.length;
+  var current = 1;
+  var stepNames = {1:'Quem é você', 2:'Seu contexto', 3:'Pra eu acertar o produto'};
+  var stepNow = document.getElementById('stepNow');
+  var stepName = document.getElementById('stepName');
+  var fill = document.getElementById('progressFill');
+  var btnBack = document.getElementById('btnBack');
+  var btnNext = document.getElementById('btnNext');
+  var btnSubmit = document.getElementById('btnSubmit');
+
+  function render(){
+    steps.forEach(function(s){ s.classList.toggle('active', Number(s.dataset.step) === current); });
+    stepNow.textContent = current;
+    stepName.textContent = stepNames[current];
+    fill.style.width = (current/total*100) + '%';
+    btnBack.style.display = current === 1 ? 'none' : 'inline-flex';
+    btnNext.style.display = current === total ? 'none' : 'inline-flex';
+    btnSubmit.style.display = current === total ? 'inline-flex' : 'none';
+  }
+
+  function validateCheckboxGroups(stepEl){
+    var groups = stepEl.querySelectorAll('[data-checkbox-group]');
+    var ok = true;
+    groups.forEach(function(g){
+      var name = g.dataset.checkboxGroup;
+      var checked = stepEl.querySelectorAll('input[name="'+name+'"]:checked').length;
+      var err = document.getElementById(name+'Error');
+      var valid = checked > 0;
+      if(err) err.classList.toggle('show', !valid);
+      if(!valid) ok = false;
+    });
+    return ok;
+  }
+
+  function currentStepEl(){ return steps[current-1]; }
+
+  function stepIsValid(){
+    var stepEl = currentStepEl();
+    var fields = stepEl.querySelectorAll('input:not(:disabled), select, textarea');
+    for(var i=0;i<fields.length;i++){
+      if(!fields[i].checkValidity()){ fields[i].reportValidity(); return false; }
+    }
+    return validateCheckboxGroups(stepEl);
+  }
+
+  btnNext.addEventListener('click', function(){
+    if(!stepIsValid()) return;
+    current = Math.min(total, current+1);
+    render();
+    document.querySelector('.form-shell').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  btnBack.addEventListener('click', function(){
+    current = Math.max(1, current-1);
+    render();
+  });
+
+  // ---------- envio ----------
+  var form = document.getElementById('cursoForm');
+  var successPanel = document.getElementById('successPanel');
+  var fallbackPanel = document.getElementById('fallbackPanel');
+  var cfg = window.ARTUR_CURSO || {};
+
+  function buildFallbackSummary(data){
+    var lines = ['Lista de espera do curso — respostas do site:'];
+    data.forEach(function(pair){
+      if(pair[0] === '_gotcha' || pair[0] === '_subject' || !pair[1]) return;
+      lines.push(pair[0] + ': ' + pair[1]);
+    });
+    return encodeURIComponent(lines.join('\n'));
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!stepIsValid()) return;
+
+    var formData = new FormData(form);
+    var entries = Array.from(formData.entries());
+
+    if(!cfg.ENDPOINT){
+      var msg = buildFallbackSummary(entries);
+      var link = document.getElementById('fallbackLink');
+      if(cfg.WHATSAPP_NUMBER){
+        link.href = 'https://wa.me/' + cfg.WHATSAPP_NUMBER + '?text=' + msg;
+        link.textContent = 'Enviar respostas pelo WhatsApp';
+      } else {
+        link.href = 'https://instagram.com/artur.agnolo';
+        link.textContent = 'Me chamar no Instagram';
+      }
+      form.style.display = 'none';
+      fallbackPanel.classList.add('show');
+      return;
+    }
+
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Enviando…';
+
+    fetch(cfg.ENDPOINT, {
+      method:'POST',
+      headers:{'Accept':'application/json'},
+      body: formData
+    }).then(function(res){
+      if(res.ok){
+        form.style.display = 'none';
+        successPanel.classList.add('show');
+      } else {
+        throw new Error('send failed');
+      }
+    }).catch(function(){
+      var msg = buildFallbackSummary(entries);
+      var link = document.getElementById('fallbackLink');
+      link.href = 'https://instagram.com/artur.agnolo';
+      link.textContent = 'Me chamar no Instagram';
+      form.style.display = 'none';
+      fallbackPanel.classList.add('show');
+    });
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>

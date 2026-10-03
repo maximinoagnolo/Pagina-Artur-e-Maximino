@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Empresarial Gratuito — Maximino Soluções</title>
+<meta name="description" content="Preencha em 3 minutos e chegamos na call de 45 minutos já sabendo onde focar — sem enrolação, direto no ponto que está consumindo o resultado da sua empresa.">
+<link rel="stylesheet" href="../style.css">
+
+<!--
+  ======================================================================
+  CONFIGURAÇÃO — endpoint de envio do formulário
+  ======================================================================
+  Troque ENDPOINT pela URL do seu formulário (ex: Formspree, Web3Forms,
+  Basin). Com Formspree: crie uma conta grátis em formspree.io, crie um
+  formulário, e cole aqui a URL no formato "https://formspree.io/f/XXXX".
+  Enquanto ENDPOINT for null, o botão de enviar mostra um aviso com
+  alternativa de contato direto, pra nunca perder um lead.
+  ======================================================================
+-->
+<script>
+  window.MAXIMINO_DIAGNOSTICO = {
+    ENDPOINT: null, // ex: "https://formspree.io/f/xxxxxxx"
+    WHATSAPP_NUMBER: "55SEUNUMEROAQUI"
+  };
+</script>
+
+<style>
+  .form-page{padding:48px 0 80px;}
+  .form-head{max-width:640px;margin:0 auto 36px;text-align:center;}
+  .form-head h1{font-size:clamp(1.7rem,3.6vw,2.3rem);color:var(--purple);margin-bottom:14px;}
+  .form-head p{color:var(--muted);font-size:1.02rem;}
+  .form-meta{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin-top:18px;font-size:.82rem;color:var(--purple);font-weight:600;}
+  .form-meta span{display:flex;align-items:center;gap:6px;}
+
+  .form-shell{
+    max-width:640px;margin:0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:18px;padding:36px 32px;box-shadow:0 24px 50px -30px rgba(44,25,57,.35);
+  }
+  @media (max-width:600px){ .form-shell{padding:26px 20px;border-radius:14px;} }
+
+  .progress-wrap{margin-bottom:30px;}
+  .progress-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:8px;font-weight:600;}
+  .progress-label b{color:var(--purple);}
+  .progress-track{height:6px;background:var(--line);border-radius:10px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--purple));border-radius:10px;transition:width .35s ease;width:25%;}
+
+  .step{display:none;animation:stepIn .35s ease;}
+  .step.active{display:block;}
+  @keyframes stepIn{from{opacity:0;transform:translateX(8px);}to{opacity:1;transform:translateX(0);}}
+  .step h2{font-size:1.2rem;color:var(--purple);margin-bottom:6px;}
+  .step .step-sub{color:var(--muted);font-size:.9rem;margin-bottom:22px;}
+
+  .field{margin-bottom:20px;}
+  .field label{display:block;font-size:.88rem;font-weight:600;color:var(--purple);margin-bottom:8px;}
+  .field .hint{font-weight:400;color:var(--muted);font-size:.8rem;}
+  .field input[type=text],
+  .field input[type=email],
+  .field input[type=tel],
+  .field select,
+  .field textarea{
+    width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:8px;
+    font-family:'Jost',sans-serif;font-size:.96rem;color:var(--dark);background:var(--cream-ghost,#fcfaf6);
+    transition:border-color .15s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--gold);}
+  .field textarea{resize:vertical;min-height:90px;}
+
+  .choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;}
+  .choice-grid.narrow{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+  .choice{
+    position:relative;display:flex;align-items:center;gap:10px;
+    border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;
+    font-size:.9rem;color:var(--dark);cursor:pointer;transition:border-color .15s ease, background .15s ease;
+  }
+  .choice input{position:absolute;opacity:0;width:1px;height:1px;}
+  .choice .mark{
+    width:17px;height:17px;flex:none;border:1.5px solid var(--muted);border-radius:5px;
+    display:flex;align-items:center;justify-content:center;transition:.15s ease;
+  }
+  .choice input[type=radio] + .mark{border-radius:50%;}
+  .choice .mark::after{content:"";width:8px;height:8px;border-radius:2px;background:var(--gold);opacity:0;transform:scale(.5);transition:.15s ease;}
+  .choice input[type=radio] + .mark::after{border-radius:50%;}
+  .choice.checked{border-color:var(--gold);background:rgba(201,162,39,.08);}
+  .choice.checked .mark{border-color:var(--gold);}
+  .choice.checked .mark::after{opacity:1;transform:scale(1);}
+
+  .conditional{margin-top:14px;display:none;}
+  .conditional.show{display:block;}
+
+  .group-error{color:#a33;font-size:.82rem;margin-top:8px;display:none;}
+  .group-error.show{display:block;}
+
+  .form-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px;}
+  .form-nav .spacer{flex:1;}
+  .btn-form{
+    display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:8px;border:none;
+    font-family:'Jost',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;transition:transform .15s ease;
+  }
+  .btn-form:hover{transform:translateY(-1px);}
+  .btn-next{background:var(--purple);color:var(--cream);margin-left:auto;}
+  .btn-back{background:transparent;color:var(--muted);border:1px solid var(--line) !important;}
+  .btn-submit{background:var(--gold);color:#241a0a;margin-left:auto;}
+
+  .success-panel, .fallback-panel{display:none;text-align:center;padding:20px 0;}
+  .success-panel.show, .fallback-panel.show{display:block;}
+  .success-panel .big-check{width:60px;height:60px;border-radius:50%;background:rgba(201,162,39,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+  .success-panel h2{color:var(--purple);margin-bottom:10px;}
+  .success-panel p{color:var(--muted);}
+  .fallback-panel p{color:var(--muted);margin-bottom:18px;}
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a class="brand" href="../index.html#top">
+      <img src="../img/symbol.png" alt="Maximino Soluções">
+      Maximino Soluções
+    </a>
+    <ul class="navlinks" id="navLinks">
+      <li><a href="../index.html#servicos">Serviços</a></li>
+      <li><a href="../index.html#sobre">Sobre</a></li>
+      <li><a href="../index.html#cases">Cases</a></li>
+      <li><a href="../index.html#contato">Contato</a></li>
+      <li class="mobile-only"><a href="../../index.html">↔ Trocar de site</a></li>
+    </ul>
+    <button class="navtoggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <a class="back-switch" href="../../index.html">↔ trocar de site</a>
+  </nav>
+</header>
+
+<section class="form-page">
+  <div class="wrap">
+
+    <div class="form-head">
+      <div class="eyebrow">Diagnóstico Empresarial · Sem custo</div>
+      <h1>Antes da call, queremos chegar sabendo onde focar</h1>
+      <p>Leva cerca de 3 minutos. Com essas respostas, a Maximino já chega nos 45 minutos de diagnóstico direto no ponto que está consumindo o seu resultado — sem rodeio, sem pergunta repetida.</p>
+      <div class="form-meta">
+        <span>⏱ ~3 minutos</span>
+        <span>🔒 Suas respostas são confidenciais</span>
+      </div>
+    </div>
+
+    <div class="form-shell">
+
+      <form id="diagForm">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="hidden" name="_subject" value="Novo lead — Diagnóstico Empresarial Maximino">
+
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Etapa <b id="stepNow">1</b> de 4</span><span id="stepName">Quem é você</span></div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+
+        <!-- ETAPA 1 — Identificação -->
+        <div class="step active" data-step="1">
+          <h2>Quem é você</h2>
+          <p class="step-sub">Pra chamarmos você pelo nome certo e sabermos quem decide dentro da empresa.</p>
+
+          <div class="field">
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" name="nome" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="empresa">Nome da empresa</label>
+            <input type="text" id="empresa" name="empresa" autocomplete="organization" required>
+          </div>
+          <div class="field">
+            <label for="cargo">Seu cargo/função na empresa</label>
+            <input type="text" id="cargo" name="cargo" placeholder="Ex: dono, sócio, diretor, gestor..." required>
+          </div>
+          <div class="field">
+            <label for="whatsapp">WhatsApp (com DDD)</label>
+            <input type="tel" id="whatsapp" name="whatsapp" placeholder="(47) 99999-9999" autocomplete="tel" required>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" autocomplete="email" required>
+          </div>
+        </div>
+
+        <!-- ETAPA 2 — Sobre a empresa -->
+        <div class="step" data-step="2">
+          <h2>Sobre a empresa</h2>
+          <p class="step-sub">Pra entender o porte e o tipo de operação antes de olhar o problema.</p>
+
+          <div class="field">
+            <label for="segmento">Segmento da empresa</label>
+            <select id="segmento" name="segmento" required>
+              <option value="" disabled selected>Selecione…</option>
+              <option>Indústria</option>
+              <option>Comércio</option>
+              <option>Serviços</option>
+              <option>Varejo</option>
+              <option value="Outro">Outro</option>
+            </select>
+            <div class="conditional" id="segmentoOutroWrap">
+              <input type="text" name="segmento_outro" placeholder="Qual segmento?">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Quantos funcionários a empresa tem?</label>
+            <div class="choice-grid narrow" data-radio-group="funcionarios">
+              <label class="choice"><input type="radio" name="funcionarios" value="Até 10" required><span class="mark"></span>Até 10</label>
+              <label class="choice"><input type="radio" name="funcionarios" value="11-30"><span class="mark"></span>11–30</label>
+              <label class="choice"><input type="radio" name="funcionarios" value="31-100"><span class="mark"></span>31–100</label>
+              <label class="choice"><input type="radio" name="funcionarios" value="Mais de 100"><span class="mark"></span>Mais de 100</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Faturamento médio mensal aproximado</label>
+            <div class="choice-grid narrow" data-radio-group="faturamento">
+              <label class="choice"><input type="radio" name="faturamento" value="Até R$100k" required><span class="mark"></span>Até R$100k</label>
+              <label class="choice"><input type="radio" name="faturamento" value="R$100k-500k"><span class="mark"></span>R$100k–500k</label>
+              <label class="choice"><input type="radio" name="faturamento" value="R$500k-1M"><span class="mark"></span>R$500k–1M</label>
+              <label class="choice"><input type="radio" name="faturamento" value="Acima de R$1M"><span class="mark"></span>Acima de R$1M</label>
+              <label class="choice"><input type="radio" name="faturamento" value="Prefiro não informar"><span class="mark"></span>Prefiro não informar</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ETAPA 3 — O problema -->
+        <div class="step" data-step="3">
+          <h2>Onde dói</h2>
+          <p class="step-sub">Essa é a parte que mais nos ajuda a preparar a call.</p>
+
+          <div class="field">
+            <label>Qual desses pontos mais te preocupa hoje na operação? <span class="hint">(pode marcar mais de um)</span></label>
+            <div class="choice-grid" data-checkbox-group="pontos">
+              <label class="choice"><input type="checkbox" name="pontos" value="Estoque"><span class="mark"></span>Estoque</label>
+              <label class="choice"><input type="checkbox" name="pontos" value="Prazo de entrega/recebimento"><span class="mark"></span>Prazo de entrega/recebimento</label>
+              <label class="choice"><input type="checkbox" name="pontos" value="Custo de produto/serviço"><span class="mark"></span>Custo de produto/serviço</label>
+              <label class="choice"><input type="checkbox" name="pontos" value="Margem/precificação"><span class="mark"></span>Margem/precificação</label>
+              <label class="choice"><input type="checkbox" name="pontos" value="Imposto"><span class="mark"></span>Imposto</label>
+              <label class="choice"><input type="checkbox" name="pontos" value="Não sei precisar — só sinto que algo está errado"><span class="mark"></span>Não sei precisar — só sinto que algo está errado</label>
+            </div>
+            <div class="group-error" id="pontosError">Marque pelo menos uma opção.</div>
+          </div>
+
+          <div class="field">
+            <label for="problema">Em uma frase, qual problema te fez buscar esse diagnóstico agora?</label>
+            <textarea id="problema" name="problema" required></textarea>
+          </div>
+
+          <div class="field">
+            <label>Você já fez algum tipo de consultoria ou diagnóstico empresarial antes?</label>
+            <div class="choice-grid narrow" data-radio-group="consultoria_antes">
+              <label class="choice"><input type="radio" name="consultoria_antes" value="Sim" required><span class="mark"></span>Sim</label>
+              <label class="choice"><input type="radio" name="consultoria_antes" value="Não"><span class="mark"></span>Não</label>
+            </div>
+            <div class="conditional" id="consultoriaObsWrap">
+              <textarea name="consultoria_obs" placeholder="O que não funcionou?"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ETAPA 4 — Urgência e contato -->
+        <div class="step" data-step="4">
+          <h2>Urgência e contato</h2>
+          <p class="step-sub">Últimas duas perguntas.</p>
+
+          <div class="field">
+            <label>Em quanto tempo você gostaria de resolver esse problema?</label>
+            <div class="choice-grid narrow" data-radio-group="tempo">
+              <label class="choice"><input type="radio" name="tempo" value="Imediato / 30 dias" required><span class="mark"></span>Imediato / 30 dias</label>
+              <label class="choice"><input type="radio" name="tempo" value="1-3 meses"><span class="mark"></span>1–3 meses</label>
+              <label class="choice"><input type="radio" name="tempo" value="Só pesquisando por enquanto"><span class="mark"></span>Só pesquisando por enquanto</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Melhor horário para contato</label>
+            <div class="choice-grid narrow" data-radio-group="horario">
+              <label class="choice"><input type="radio" name="horario" value="Manhã" required><span class="mark"></span>Manhã</label>
+              <label class="choice"><input type="radio" name="horario" value="Tarde"><span class="mark"></span>Tarde</label>
+              <label class="choice"><input type="radio" name="horario" value="Noite"><span class="mark"></span>Noite</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-nav">
+          <button type="button" class="btn-form btn-back" id="btnBack" style="display:none;">← Voltar</button>
+          <div class="spacer"></div>
+          <button type="button" class="btn-form btn-next" id="btnNext">Avançar →</button>
+          <button type="submit" class="btn-form btn-submit" id="btnSubmit" style="display:none;">Enviar diagnóstico</button>
+        </div>
+      </form>
+
+      <div class="success-panel" id="successPanel">
+        <div class="big-check">✓</div>
+        <h2>Recebemos suas respostas</h2>
+        <p>A Maximino entra em contato no WhatsApp ou e-mail que você informou pra marcar os 45 minutos de diagnóstico. Obrigado pela confiança.</p>
+      </div>
+
+      <div class="fallback-panel" id="fallbackPanel">
+        <p>O envio automático ainda não está configurado — mas sua resposta não vai se perder. Chama a gente direto:</p>
+        <a class="btn btn-gold" id="fallbackWhatsapp" href="#" target="_blank" rel="noopener">Enviar respostas pelo WhatsApp</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>Maximino Soluções · Consultoria Empresarial · Brusque, Vale do Itajaí/SC</div>
+    <div class="foot-links">
+      <a href="https://instagram.com/maximino.consultorias" target="_blank" rel="noopener">Instagram</a>
+      <a href="../index.html">Site da Maximino</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // menu mobile
+  var navBtn = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  if(navBtn && navLinks){
+    navBtn.addEventListener('click', function(){
+      var open = navLinks.classList.toggle('open');
+      navBtn.setAttribute('aria-expanded', open ? 'true':'false');
+      navBtn.textContent = open ? '✕' : '☰';
+    });
+  }
+
+  // choice cards (radio/checkbox visual state)
+  document.querySelectorAll('.choice input').forEach(function(input){
+    function sync(){
+      if(input.type === 'radio'){
+        document.getElementsByName(input.name).forEach(function(sibling){
+          sibling.closest('.choice').classList.toggle('checked', sibling.checked);
+        });
+      } else {
+        input.closest('.choice').classList.toggle('checked', input.checked);
+      }
+    }
+    input.addEventListener('change', sync);
+  });
+
+  // condicional: segmento = Outro
+  var segmento = document.getElementById('segmento');
+  var segmentoOutroWrap = document.getElementById('segmentoOutroWrap');
+  segmento.addEventListener('change', function(){
+    var show = segmento.value === 'Outro';
+    segmentoOutroWrap.classList.toggle('show', show);
+    segmentoOutroWrap.querySelector('input').required = show;
+  });
+
+  // condicional: já fez consultoria = Sim
+  var consultoriaObsWrap = document.getElementById('consultoriaObsWrap');
+  document.getElementsByName('consultoria_antes').forEach(function(r){
+    r.addEventListener('change', function(){
+      consultoriaObsWrap.classList.toggle('show', r.value === 'Sim' && r.checked);
+    });
+  });
+
+  // ---------- motor de etapas ----------
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var total = steps.length;
+  var current = 1;
+  var stepNames = {1:'Quem é você', 2:'Sobre a empresa', 3:'Onde dói', 4:'Urgência e contato'};
+  var stepNow = document.getElementById('stepNow');
+  var stepName = document.getElementById('stepName');
+  var fill = document.getElementById('progressFill');
+  var btnBack = document.getElementById('btnBack');
+  var btnNext = document.getElementById('btnNext');
+  var btnSubmit = document.getElementById('btnSubmit');
+
+  function render(){
+    steps.forEach(function(s){ s.classList.toggle('active', Number(s.dataset.step) === current); });
+    stepNow.textContent = current;
+    stepName.textContent = stepNames[current];
+    fill.style.width = (current/total*100) + '%';
+    btnBack.style.display = current === 1 ? 'none' : 'inline-flex';
+    btnNext.style.display = current === total ? 'none' : 'inline-flex';
+    btnSubmit.style.display = current === total ? 'inline-flex' : 'none';
+  }
+
+  function validateCheckboxGroups(stepEl){
+    var groups = stepEl.querySelectorAll('[data-checkbox-group]');
+    var ok = true;
+    groups.forEach(function(g){
+      var name = g.dataset.checkboxGroup;
+      var checked = stepEl.querySelectorAll('input[name="'+name+'"]:checked').length;
+      var err = document.getElementById(name+'Error');
+      var valid = checked > 0;
+      if(err) err.classList.toggle('show', !valid);
+      if(!valid) ok = false;
+    });
+    return ok;
+  }
+
+  function currentStepEl(){ return steps[current-1]; }
+
+  function stepIsValid(){
+    var stepEl = currentStepEl();
+    var fields = stepEl.querySelectorAll('input, select, textarea');
+    for(var i=0;i<fields.length;i++){
+      if(!fields[i].checkValidity()){ fields[i].reportValidity(); return false; }
+    }
+    return validateCheckboxGroups(stepEl);
+  }
+
+  btnNext.addEventListener('click', function(){
+    if(!stepIsValid()) return;
+    current = Math.min(total, current+1);
+    render();
+    document.querySelector('.form-shell').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  btnBack.addEventListener('click', function(){
+    current = Math.max(1, current-1);
+    render();
+  });
+
+  // ---------- envio ----------
+  var form = document.getElementById('diagForm');
+  var successPanel = document.getElementById('successPanel');
+  var fallbackPanel = document.getElementById('fallbackPanel');
+  var cfg = window.MAXIMINO_DIAGNOSTICO || {};
+
+  function buildWhatsappSummary(data){
+    var lines = ['Diagnóstico Empresarial — respostas do site:'];
+    data.forEach(function(pair){
+      if(pair[0] === '_gotcha' || pair[0] === '_subject' || !pair[1]) return;
+      lines.push(pair[0] + ': ' + pair[1]);
+    });
+    return encodeURIComponent(lines.join('\n'));
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!stepIsValid()) return;
+
+    var formData = new FormData(form);
+    var entries = Array.from(formData.entries());
+
+    if(!cfg.ENDPOINT){
+      var msg = buildWhatsappSummary(entries);
+      document.getElementById('fallbackWhatsapp').href = 'https://wa.me/' + (cfg.WHATSAPP_NUMBER||'') + '?text=' + msg;
+      form.style.display = 'none';
+      fallbackPanel.classList.add('show');
+      return;
+    }
+
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Enviando…';
+
+    fetch(cfg.ENDPOINT, {
+      method:'POST',
+      headers:{'Accept':'application/json'},
+      body: formData
+    }).then(function(res){
+      if(res.ok){
+        form.style.display = 'none';
+        successPanel.classList.add('show');
+      } else {
+        throw new Error('send failed');
+      }
+    }).catch(function(){
+      var msg = buildWhatsappSummary(entries);
+      document.getElementById('fallbackWhatsapp').href = 'https://wa.me/' + (cfg.WHATSAPP_NUMBER||'') + '?text=' + msg;
+      form.style.display = 'none';
+      fallbackPanel.classList.add('show');
+    });
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
