@@ -9,18 +9,19 @@
 
 <!--
   ======================================================================
-  CONFIGURAÇÃO — endpoint de envio do formulário
+  CONFIGURAÇÃO
   ======================================================================
-  Troque ENDPOINT pela URL do seu formulário (ex: Formspree, Web3Forms,
-  Basin). Com Formspree: crie uma conta grátis em formspree.io, crie um
-  formulário, e cole aqui a URL no formato "https://formspree.io/f/XXXX".
-  Enquanto ENDPOINT for null, o botão de enviar mostra um aviso com
-  alternativa de contato direto, pra nunca perder um lead.
+  O envio vai direto para /api/lead (função do próprio projeto no Vercel),
+  que grava no Postgres do Vercel — sem nenhum serviço externo. Só
+  funciona de verdade depois que o banco Postgres for criado e conectado
+  ao projeto (painel do Vercel -> Storage -> Create Database -> Postgres).
+  Até lá (ou se a API falhar por qualquer motivo), o formulário cai
+  automaticamente no fallback por WhatsApp abaixo, pra nunca perder lead.
   ======================================================================
 -->
 <script>
   window.MAXIMINO_DIAGNOSTICO = {
-    ENDPOINT: null, // ex: "https://formspree.io/f/xxxxxxx"
+    SOURCE: "maximino_diagnostico",
     WHATSAPP_NUMBER: "55SEUNUMEROAQUI"
   };
 </script>
@@ -432,28 +433,41 @@
     return encodeURIComponent(lines.join('\n'));
   }
 
+  function formDataToObject(formData){
+    var obj = {};
+    formData.forEach(function(value, key){
+      if(Object.prototype.hasOwnProperty.call(obj, key)){
+        obj[key] = Array.isArray(obj[key]) ? obj[key].concat(value) : [obj[key], value];
+      } else {
+        obj[key] = value;
+      }
+    });
+    return obj;
+  }
+
+  function showFallback(entries){
+    var msg = buildWhatsappSummary(entries);
+    document.getElementById('fallbackWhatsapp').href = 'https://wa.me/' + (cfg.WHATSAPP_NUMBER||'') + '?text=' + msg;
+    form.style.display = 'none';
+    fallbackPanel.classList.add('show');
+  }
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
     if(!stepIsValid()) return;
 
     var formData = new FormData(form);
     var entries = Array.from(formData.entries());
-
-    if(!cfg.ENDPOINT){
-      var msg = buildWhatsappSummary(entries);
-      document.getElementById('fallbackWhatsapp').href = 'https://wa.me/' + (cfg.WHATSAPP_NUMBER||'') + '?text=' + msg;
-      form.style.display = 'none';
-      fallbackPanel.classList.add('show');
-      return;
-    }
+    var payload = formDataToObject(formData);
+    payload.source = cfg.SOURCE;
 
     btnSubmit.disabled = true;
     btnSubmit.textContent = 'Enviando…';
 
-    fetch(cfg.ENDPOINT, {
+    fetch('/api/lead', {
       method:'POST',
-      headers:{'Accept':'application/json'},
-      body: formData
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
     }).then(function(res){
       if(res.ok){
         form.style.display = 'none';
@@ -462,10 +476,9 @@
         throw new Error('send failed');
       }
     }).catch(function(){
-      var msg = buildWhatsappSummary(entries);
-      document.getElementById('fallbackWhatsapp').href = 'https://wa.me/' + (cfg.WHATSAPP_NUMBER||'') + '?text=' + msg;
-      form.style.display = 'none';
-      fallbackPanel.classList.add('show');
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Enviar diagnóstico';
+      showFallback(entries);
     });
   });
 

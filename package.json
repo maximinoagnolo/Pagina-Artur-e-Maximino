@@ -1,0 +1,9 @@
+{
+  "name": "site-artur-maximino",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Site estático (Artur Dell'Agnolo + Maximino Soluções) com formulários de captação gravando no Postgres do Vercel.",
+  "dependencies": {
+    "@vercel/postgres": "^0.9.0"
+  }
+}
